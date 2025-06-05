@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Simple Book Manager</title>
+  <style>
+    body { font-family: Arial; max-width: 600px; margin: auto; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+    input, button { margin: 5px 0; padding: 6px; width: 100%; }
+    .error { color: red; }
+    .success { color: green; }
+  </style>
+</head>
+<body>
+  <h1>Book Manager</h1>
+  <div id="message"></div>
+
+
+  <h3>Add / Update Book</h3>
+  <input id="title" placeholder="Title" />
+  <input id="author" placeholder="Author" />
+  <input id="year" type="number"  placeholder="Year" />
+  <input id="genre" placeholder="Genre" />
+  <button onclick="addOrUpdateBook()">Add or Update Book</button>
+
+
+  <h3>Remove Book</h3>
+  <input id="removeTitle" placeholder="Title to Remove" />
+  <button onclick="removeBook()">Remove Book</button>
+
+
+  <h3>Book List</h3>
+  <table>
+    <thead>
+      <tr><th>Title</th><th>Author</th><th>Year</th><th>Genre</th></tr>
+    </thead>
+    <tbody id="bookTable"></tbody>
+  </table>
+
+
+  <script>
+    // Initial book data (JSON structure)
+    let books = [
+      { title: "The Shadow of the Wind", author: "Carlos Ruiz Zafón", year: 2001, genre: "Historical Fiction / Mystery" },
+      { title: "Educated", author: "Tara Westover", year: 2018, genre: "Memoir / Autobiography" },
+      { title: "Never Let Me Go", author: "Kazuo Ishiguro", year: 2005, genre: "Dystopian Fiction / Science Fiction" }
+    ];
+
+
+    function showMessage(msg, isError = false) {
+      const div = document.getElementById("message");
+      div.textContent = msg;
+      div.className = isError ? "error" : "success";
+      setTimeout(() => div.textContent = "", 3000);
+    }
+
+
+    function displayBooks() {
+      const table = document.getElementById("bookTable");
+      table.innerHTML = "";
+      books.forEach(book => {
+        const row = `<tr>
+          <td>${book.title}</td>
+          <td>${book.author}</td>
+          <td>${book.year}</td>
+          <td>${book.genre}</td>
+        </tr>`;
+        table.innerHTML += row;
+      });
+    }
+
+
+    function addOrUpdateBook() {
+      const title = document.getElementById("title").value.trim();
+      const author = document.getElementById("author").value.trim();
+      const year = parseInt(document.getElementById("year").value);
+      const genre = document.getElementById("genre").value.trim();
+
+
+      if (!title || !author || !year || !genre || isNaN(year)) {
+        showMessage("Please fill in all fields correctly.", true);
+        return;
+      }
+
+
+      const existing = books.find(b => b.title.toLowerCase() === title.toLowerCase());
+      if (existing) {
+        existing.author = author;
+        existing.year = year;
+        existing.genre = genre;
+        showMessage("Book updated.");
+      } else {
+        books.push({ title, author, year, genre });
+        showMessage("Book added.");
+      }
+
+
+      displayBooks();
+      document.getElementById("title").value = "";
+      document.getElementById("author").value = "";
+      document.getElementById("year").value = "";
+      document.getElementById("genre").value = "";
+    }
+
+
+    function removeBook() {
+      const title = document.getElementById("removeTitle").value.trim();
+      const index = books.findIndex(b => b.title.toLowerCase() === title.toLowerCase());
+
+
+      if (index === -1) {
+        showMessage("Book not found.", true);
+        return;
+      }
+
+
+      books.splice(index, 1);
+      displayBooks();
+      showMessage("Book removed.");
+      document.getElementById("removeTitle").value = "";
+    }
+
+
+    // Show books on page load
+    window.onload = displayBooks;
+  </script>
+</body>
+</html>
